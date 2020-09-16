@@ -3,8 +3,9 @@ package repo;
 import model.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public interface UserRepo {
-    List<User> users = new ArrayList<>();
+    HashMap<String, User> users = new HashMap<String, User>();
 }
