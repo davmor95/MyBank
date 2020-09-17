@@ -1,8 +1,5 @@
 import controller.UserController;
-import model.Account;
-import model.Transaction;
-import model.TransactionType;
-import model.User;
+import model.*;
 import repo.UserRepo;
 
 import java.beans.Transient;
@@ -98,7 +95,35 @@ public class Main {
     private static void createAnotherAccount(Scanner sc, String userId) {
         sc = new Scanner(System.in);
         User user = service.users.get(userId);
-        System.out.println("Would you like");
+        System.out.println("Would you like to create a checking or savings? (type as 'checking' or 'savings')");
+        if(sc.hasNextLine()) {
+            String typeOfAccount = sc.nextLine();
+            if(typeOfAccount.equals("checking") || typeOfAccount.equals("savings")) {
+                switch (typeOfAccount) {
+                    case "checking":
+                        Account newChecking = new Account();
+                        newChecking.setType(AccountType.CHECKING);
+                        newChecking.setAccount_number(account_number_counter++);
+                        user.getAccounts().put(newChecking.getAccount_number(), newChecking);
+                        service.users.put(userId, user);
+                        System.out.println("Created checkings!");
+                        break;
+                    case "savings":
+                        Account newSavings = new Account();
+                        newSavings.setType(AccountType.SAVINGS);
+                        newSavings.setAccount_number(account_number_counter++);
+                        user.getAccounts().put(newSavings.getAccount_number(), newSavings);
+                        service.users.put(userId, user);
+                        System.out.println("Created savings!");
+                }
+
+            }
+            else {
+                System.out.println("Did not enter checking or savings, back to menu");
+                return;
+            }
+
+        }
     }
 
     private static void displayCustomerInfo(String userId) {
