@@ -77,7 +77,7 @@ public class Main {
                     withdraw(sc, userId);
                     break;
                 case 3:
-                    transfer();
+                    transfer(sc, userId);
                     break;
                 case 4:
                     recentTransactions(userId);
@@ -86,12 +86,19 @@ public class Main {
                     displayCustomerInfo(userId);
                     break;
                 case 6:
-                    
+                    createAnotherAccount(sc, userId);
+                    break;
                 case 7:
                     return;
             }
 
         } while (choice > 0);
+    }
+
+    private static void createAnotherAccount(Scanner sc, String userId) {
+        sc = new Scanner(System.in);
+        User user = service.users.get(userId);
+        System.out.println("Would you like");
     }
 
     private static void displayCustomerInfo(String userId) {
@@ -105,7 +112,60 @@ public class Main {
         found.getTransactions().stream().forEach(System.out::println);
     }
 
-    private static void transfer() {
+    private static void transfer(Scanner sc, String userId) {
+        sc = new Scanner(System.in);
+        User user = service.users.get(userId);
+        HashMap<Long, Account> userAccounts = user.getAccounts();
+        Account fromAccount = null;
+        Account toAccount = null;
+        Double transfer;
+
+        System.out.println("Which account do you want to transfer from?");
+        userAccounts.entrySet().forEach(System.out::println);
+        if(sc.hasNextLong()) {
+            fromAccount = userAccounts.get(sc.nextLong());
+        } else {
+            System.out.println("Error in grabbing account");
+            return;
+        }
+        System.out.println("Which account do you want to transfer to?");
+        userAccounts.entrySet().forEach(System.out::println);
+        if(sc.hasNextLong()) {
+            toAccount = userAccounts.get(sc.nextLong());
+        } else {
+            System.out.println("Error in grabbing account");
+            return;
+        }
+        Double fromBalance = fromAccount.getBalance();
+        System.out.println("How much would you like to transfer?");
+        if(sc.hasNextDouble()) {
+            transfer = sc.nextDouble();
+
+            if(fromBalance - transfer < 0) {
+                System.out.println("Cannot transfer since you dont have suffient amount of money to do so.");
+            } else {
+                Double newBalanceFrom = fromBalance - transfer;
+                fromAccount.setBalance(newBalanceFrom);
+                userAccounts.put(fromAccount.getAccount_number(), fromAccount);
+                //now add the new funds to the desired account
+                Double toBalance = toAccount.getBalance();
+                Double newBalanceTo = toBalance + transfer;
+                toAccount.setBalance(newBalanceTo);
+                userAccounts.put(toAccount.getAccount_number(), toAccount);
+                user.setAccounts(userAccounts);
+                service.users.put(userId, user);
+                System.out.println("Transfer success");
+            }
+        } else {
+            System.out.println("Error in receiving how much you would like to transfer");
+            return;
+        }
+
+
+
+
+
+
     }
 
     private static void withdraw(Scanner sc, String userID) {
@@ -223,10 +283,11 @@ public class Main {
         System.out.println("3. Funds Transfer");
         System.out.println("4. View 5 Recent Transactions");
         System.out.println("5. Display Customer Information");
-        System.out.println("6. Sign Out");
+        System.out.println("6. Create another account");
+        System.out.println("7. Sign Out");
         System.out.println();
         System.out.println();
-        System.out.println("Enter choice (1, 2, 3, 4, 5 or 6");
+        System.out.println("Enter choice (1, 2, 3, 4, 5 or 6)");
 
         choice = sc.nextInt();
         return choice;
